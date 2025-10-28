@@ -6,14 +6,14 @@ require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc'); 
 
 // sessions so user can only access the the browse feature if they are logged in
-/*
+
 session_start();
 
 if (!isset($_SESSION['username'])) {
     header("Location: index.html"); 
     exit(); 
 }
-*/
+
  
  // requests goes from MQ to DMZMovieServer to request Trending movies for browse feature
 function getTrendingMoviesFromDMZ() {
