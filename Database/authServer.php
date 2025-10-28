@@ -10,8 +10,7 @@ require_once('connection.php');
 // handles incoming requests for both login & registration
 function requestProcessor($request)
 {
-    	// global $conn so the DB connection is easily accessible 
-    	global $conn;
+    
 
    
     // Debugging step where the request data would get printed
