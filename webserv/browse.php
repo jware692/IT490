@@ -172,7 +172,6 @@ if ($trendingMovies) {
 
             // Output movie card HTML
             echo "<div class='movie-card'>";
-            echo "<img src='$poster' alt='$title' onerror=\"this.src='https://via.placeholder.com/200x300?text=No+Image'\">";
             echo "<h3>$title</h3>";
             echo "<p>($year)</p>";
             echo "<a class='details-link' href='details.php?id=$id'>View Details</a>";
@@ -181,7 +180,7 @@ if ($trendingMovies) {
     } else {
         
         // message if API call fails
-        echo "<p style='text-align:center;'>No trending movies found or API failed.</p>";
+        echo "<p style='text-align:center;'Movie not found or API call fail .</p>";
     }
     ?>
 </div>
@@ -192,7 +191,7 @@ if ($trendingMovies) {
 <?php endif; ?>
 
 <script>
-    // Pass PHP movie data to JavaScript
+   
     // pass the movie data from php to javascript
     const allMovies = <?php echo json_encode($trendingMovies); ?>;
 
@@ -210,9 +209,7 @@ if ($trendingMovies) {
             const id = movie.ids.slug;
             const title = movie.title;
             const year = movie.year;
-            const poster = movie.ids.tmdb 
-                ? `https://image.tmdb.org/t/p/w300/${movie.ids.tmdb}.jpg` 
-                : 'https://via.placeholder.com/200x300?text=No+Image';
+
 
             
             // creating the movie cards dynamically
