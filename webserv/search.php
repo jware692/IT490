@@ -179,7 +179,6 @@ if ($search_term !== '') {
 
             // Render movie card HTML
             echo "<div class='movie-card'>";
-echo "<img src='$poster' alt='$title' onerror=\"this.src='https://via.placeholder.com/200x300?text=No+Image'\">";
             echo "<h3>$title</h3>";
             echo "<p>($year)</p>";
             echo "<a class='details-link' href='details.php?id=$id'>View Details</a>";
@@ -188,8 +187,8 @@ echo "<img src='$poster' alt='$title' onerror=\"this.src='https://via.placeholde
     } 
     
     else {
-        // Show error if no results or the API call failed
-        // error if no results where found or if API call failed
+
+        // error if no results or fail with the API call from DMZ
         echo "<p style='text-align:center;'>No results found or API failed.</p>"; }
 }
 ?>
