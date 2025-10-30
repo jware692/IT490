@@ -16,10 +16,10 @@ if (!isset($_SESSION['username'])) {
 // Client_ID used for grabbing the proper ID from the Trakt API
 $Client_ID = "d8f75848dca47e56ee15ccbc8658a084800c3c101d56e3ae0f2d40278dfb8943";
 
-// Check if a movie ID was provided in the URL (GET parameter)
+
 // Checks if ID is present from the movie URL
 if (!isset($_GET['id'])) {
-    echo "<p>No movie selected.</p>"; // Message if no movie chosen
+    echo "<p>No movie selected.</p>"; 
     exit; }
 
 
