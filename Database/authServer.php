@@ -60,7 +60,8 @@ function requestProcessor($request)
                 return ['returnCode' => 0, 'message' => 'Incorrect password'];  // returns when password is incorrect
             }
 
-        case "register": // case handles registration
+        // case handles registration
+		case "register": 
         
         
             $email = $request['email'];      
@@ -72,9 +73,9 @@ function requestProcessor($request)
             
             // checks to see if username exists within DB
             $stmt = $conn->prepare("SELECT username FROM users WHERE username = ?");
-            $stmt->bind_param("s", $username);  // binding username to query
-            $stmt->execute();  // Executes query
-            $stmt->store_result();  // Stores results
+            $stmt->bind_param("s", $username);  
+            $stmt->execute();  
+            $stmt->store_result();  
 
             
             // Error message displayed if the username exists 
@@ -94,10 +95,10 @@ function requestProcessor($request)
 // executing the inserted query & return a success or failure message depending on the success or failure of the function
         if ($stmt->execute()) {
         $stmt->close();
-	return ['returnCode' => 1, 'message' => 'Registration successful'];  } // registration successful
+	return ['returnCode' => 1, 'message' => 'Registration successful'];  } 
            else {
         	$stmt->close();
-        return ['returnCode' => 0, 'message' => 'DB insert failed: ' . $stmt->error];  } // registration failed
+        return ['returnCode' => 0, 'message' => 'DB insert failed: ' . $stmt->error];  } 
             
 
         default: // if unknown requests happens
@@ -118,7 +119,7 @@ echo "Auth consumer listening on loginQueue & registerQueue...\n";
 // Function to process the request from either one of the queues
 function processBothQueues($request) {
     return requestProcessor($request);  
-    // Pass request to the requestProcessor function
+    
 }
 
 // loop listens to both login & register queues
