@@ -37,7 +37,8 @@ function requestProcessor($request)
 
 
   	// ouput message of when an account shows up in DB
-	return ['returnCode' => 1, 'message' => 'Log entry added successfully'];	}
+	return ['returnCode' => 1, 'message' => 'Log entry added'];	
+}
 
 	// MQ setup to handle incoming requests made by server
 	$server = new rabbitMQServer("dbRabbitMQ.ini", "logServer");
