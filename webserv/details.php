@@ -3,14 +3,14 @@
 // Sessions to make sure the User is logged in when accessing page
 session_start(); 
 
-/* 
+ 
 
 if (!isset($_SESSION['username'])) {
     header("Location: index.html"); // Redirect back to login page if not logged in
     exit();
 }
 
-*/
+
 
 
 // Client_ID used for grabbing the proper ID from the Trakt API
@@ -81,7 +81,9 @@ if ($Credits) {
         foreach ($Credits['cast'] as $Cast) {
             // Format as "Actor Name as Character Name"
             $Cast_List[] = htmlspecialchars($Cast['person']['name']) . " as " . htmlspecialchars($Cast['character']);
-        } }
+        } 
+    
+    }
 
   
     if (isset($Credits['crew'])) {
@@ -94,9 +96,14 @@ if ($Credits) {
             // extract writing info
             if ($Department === 'writing') {
                 foreach ($People as $p) $Crew_List['Writers'][] = htmlspecialchars($p['person']['name']);
-            } }
-            }
-         }
+            } 
+        
+        }
+            
+    }
+         
+
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
