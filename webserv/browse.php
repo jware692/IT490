@@ -47,7 +47,7 @@ function getTrendingMoviesFromDMZ() {
 // grabs trending movies from DMZ VM 
 $trendingMovies = getTrendingMoviesFromDMZ();
 
-// Shuffles trending movies so same movies don't keep showing
+// Shuffles movies from TrendingMovies API from Trakt
 if ($trendingMovies) {
     shuffle($trendingMovies);
 }
