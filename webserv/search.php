@@ -6,9 +6,9 @@ require_once('rabbitMQLib.inc');
 
 
 session_start(); 
-// make sure user is logged to access the search.php file
+
 if (!isset($_SESSION['username'])) {
-    // redirect user if not in the right page
+  
     header("Location: index.html");
     exit(); }
 
@@ -34,7 +34,7 @@ function searchMoviesViaDMZ($query) {
     // checks how legit is the response and if it is, return success and the movie data should be pulled
     if ($response && isset($response['returnCode']) && $response['returnCode'] === 1) {
         return $response['data']; 
-    }
+		}
     return null; 
 }
 ?>
