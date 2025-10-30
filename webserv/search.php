@@ -18,14 +18,14 @@ $search_term = isset($_GET['q']) ? trim($_GET['q']) : '';
 
  // sends user's desired search query to dmz server by using MQ
 function searchMoviesViaDMZ($query) {
-    // MQ client to communicate with DMZ VM
+  
     $client = new rabbitMQClient("movieRabbitMQ.ini", "DMZMovieServer");
 
     
     // requests sent to backend
     $request = [
         'type' => 'movieSearch', 
-        'query' => $query     ];   // search term
+        'query' => $query     ];   
 
 
     // request sent 
@@ -33,9 +33,9 @@ function searchMoviesViaDMZ($query) {
 
     // checks how legit is the response and if it is, return success and the movie data should be pulled
     if ($response && isset($response['returnCode']) && $response['returnCode'] === 1) {
-        return $response['data']; // <---- Movie Data returned here
+        return $response['data']; 
     }
-    return null; // if movie data is not returned, report null
+    return null; 
 }
 ?>
 <!DOCTYPE html>
@@ -166,7 +166,7 @@ if ($search_term !== '') {
 
     // Checks if movies was returned successfully 
     if ($movies) {
-        // Loop through each movie result
+       
         foreach ($movies as $item) {
             if (!isset($item['movie'])) continue;
             $movie = $item['movie'];
