@@ -4,194 +4,179 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-
 session_start(); 
 
-if (!isset($_SESSION['username'])) {
-  
-    header("Location: index.html");
-    exit(); }
-
+	if (!isset($_SESSION['username'])) {
+    	header("Location: index.php");
+    	exit();
+	}
 
 // get search term url query
 $search_term = isset($_GET['q']) ? trim($_GET['q']) : '';
 
- // sends user's desired search query to dmz server by using MQ
-function searchMoviesViaDMZ($query) {
-  
-    $client = new rabbitMQClient("movieRabbitMQ.ini", "DMZMovieServer");
+// sends user's desired search query to DMZ server by using MQ
+function searchMoviesViaDMZ($query){
+$client = new rabbitMQClient("movieRabbitMQ.ini", "DMZMovieServer");
 
-    
-    // requests sent to backend
-    $request = [
-        'type' => 'movieSearch', 
-        'query' => $query     ];   
+	$request = [
+   	 'type' => 'movieSearch','query' => $query
+    	];
+
+$response = $client->send_request($request);
+
+if ($response && isset($response['returnCode']) && $response['returnCode'] === 1) {
+return $response['data']; 
+	}
+
+return null;
+     }
 
 
-    // request sent 
-    $response = $client->send_request($request);
 
-    // checks how legit is the response and if it is, return success and the movie data should be pulled
-    if ($response && isset($response['returnCode']) && $response['returnCode'] === 1) {
-        return $response['data']; 
-		}
-    return null; 
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Movie Search</title>
-<style>
-/* ---- Page Styling---- */
-body {
-    font-family: 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
-    background: #121212;
-    color: #fff;
-    margin: 0;
-    padding: 20px;
-}
-	h1 {
-    	text-align: center;
-    	color: #e50914;
-    	letter-spacing: 1px; }
-	form {
-    	text-align: center;
-    	margin-bottom: 30px;}
-
-	/*Search Bar*/
-	input[type="text"] {
-    padding: 10px;
-    width: 320px;
-    border-radius: 5px;
-    border: 1px solid #333;
-    background: #1e1e1e;
-    color: #fff;
-    font-size: 16px; }
-	button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-    background: #e50914;
-    color: white;
-    cursor: pointer;
-    margin-left: 10px;
-}
 
 
-/* Movie Display section */
-.movies-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 25px;
-}
-
-/* Movie Card */
-.movie-card {
-    background: #1e1e1e;
-    border-radius: 12px;
-    overflow: hidden;
-    width: 200px;
-    box-shadow: 0 6px 10px rgba(0,0,0,0.6);
-    text-align: center;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
 
 
-.movie-card h3 {
-    margin: 10px 0 5px 0;
-    font-size: 16px;
-    color: #e50914;
-}
-.movie-card p {
-    margin: 0 0 10px 0;
-    color: #ccc;
-    font-size: 14px;
-}
-
-/*  Details Button */
-.details-link {
-    display: inline-block;
-    margin-bottom: 12px;
-    padding: 6px 12px;
-    background-color: #e50914;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 14px; }
-    
-
-/* Browse Button*/
-.browse-btn {
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-    background: #e50914;
-    color: white;
-    text-decoration: none;
-    cursor: pointer;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    display: inline-block;
-    text-align: center;
-}
-
-</style>
+// Bootstrap Lux/Responsive Web Design  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/lux/bootstrap.min.css">
 </head>
 <body>
 
-<!--Browse Button -->
-<a href="browse.php" class="browse-btn">Browse</a>
 
-<!--Search Form -->
-<h1>Search for Movie</h1>
-<form method="GET" action="">
-    <!-- sanitize input before display for security reasons-->
-    <input type="text" name="q" value="<?php echo htmlspecialchars($search_term); ?>" placeholder="Enter movie...">
-    <button type="submit">Search</button>
-</form>
 
-<!-- movie results -->
-<div class="movies-container">
+
+// Nav Bar customization
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<div class="container-fluid">
+
+<a class="navbar-brand fs-3 fw-bold" href="#">MovieHub</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+<span class="navbar-toggler-icon"></span>
+
+// Nav Bar
+</button>
+<div class="collapse navbar-collapse" id="navMenu">
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+<li class="nav-item"><a class="nav-link" href="anticipated.php">Upcoming</a></li>
+<li class="nav-item"><a class="nav-link" href="watchlist.php">Watchlist</a></li>
+<li class="nav-item"><a class="nav-link" href="discussion.php">Discussion Board</a></li>
+<li class="nav-item"><a class="nav-link" href="browse.php">Browse</a></li>
+<li class="nav-item"><a class="nav-link" href="my_reviews.php">My Reviews</a></li>
+</ul>
+
+<form class="d-flex" method="GET" action="search.php">
+     	<input 
+        class="form-control me-2"
+         type="search" 
+         name="q"
+         placeholder="Search..."
+         value="<?php echo htmlspecialchars($search_term); ?>"
+>
+      <button class="btn btn-success" type="submit">Search</button>
+      </form>
+      <form class="ms-3" action="logout.php" method="POST">
+      <button class="btn btn-danger" type="submit">Logout</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<!-- title -->
+<div class="container text-center mt-5">
+<h1 class="fw-bold text-primary">Search Results</h1>
+</div>
+
+<!-- results  -->
+<div class="container mt-4">
+  <div class="row g-4" id="movieContainer">
+
 <?php
-// search term entered
+$index = 0;
+
 if ($search_term !== '') {
-    // Grab movie data through the DMZ using MQ
     $movies = searchMoviesViaDMZ($search_term);
 
-    // Checks if movies was returned successfully 
     if ($movies) {
-       
         foreach ($movies as $item) {
-            if (!isset($item['movie'])) continue;
-            $movie = $item['movie'];
+        if (!isset($item['movie'])) continue;
 
-            // extract sanitized movie info
-            $id = htmlspecialchars($movie['ids']['slug']);
+        $movie = $item['movie'];
+
+            $id    = htmlspecialchars($movie['ids']['slug']);
             $title = htmlspecialchars($movie['title']);
-            $year = htmlspecialchars($movie['year']);
+            $year  = htmlspecialchars($movie['year']);
 
+            // Hide items after 20 for Load More
+            $hiddenClass = ($index >= 20) ? "d-none" : "";
 
-            // Render movie card HTML
-            echo "<div class='movie-card'>";
-            echo "<h3>$title</h3>";
-            echo "<p>($year)</p>";
-            echo "<a class='details-link' href='details.php?id=$id'>View Details</a>";
-            echo "</div>";
+            echo "
+        <div class='col-12 col-sm-6 col-md-4 col-lg-3 movie-item $hiddenClass'>
+        <div class='card p-3 shadow'>
+	<h4 class='fw-bold text-primary'>$title</h4>
+        <p class='text-muted'>($year)</p>
+
+             <a href='details.php?id=$id' class='btn btn-primary w-100 mt-2'>
+             View Details
+             </a>
+             </div>
+             </div>";
+		$index++;
         }
-    } 
-    
-    else {
 
-        // error if no results or fail with the API call from DMZ
-        echo "<p style='text-align:center;'>No results found or API failed.</p>"; }
+    } 
+
+else {
+        echo "<p class='text-center fs-4 text-secondary'>No results found.</p>";
+    }
 }
 ?>
+
 </div>
+</div>
+
+
+
+
+
+<div class="text-center mt-4 mb-5">
+	<button 
+      	id="loadMoreBtn"
+      	class="btn btn-success btn-lg d-none"
+    	>Load More</button>
+</div>
+
+
+
+
+
+<script>
+let totalMovies = <?php echo $index; ?>;
+let loaded = 20;
+
+
+
+let btn = document.getElementById("loadMoreBtn");
+if (totalMovies > 20) btn.classList.remove("d-none");
+
+btn.addEventListener("click", function () {
+    let items = document.querySelectorAll(".movie-item");
+    let nextLoad = loaded + 20;
+    for (let i = loaded; i < nextLoad && i < items.length; i++) {
+        items[i].classList.remove("d-none");
+    }
+    loaded = nextLoad;
+    if (loaded >= items.length) {
+    btn.classList.add("d-none");
+    }
+});
+</script>
+// bootstrap bundle implementation
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

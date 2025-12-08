@@ -1,165 +1,275 @@
 <?php
 
-// Sessions to make sure the User is logged in when accessing page
-session_start(); 
+// libraries for MQ connection
+require_once('path.inc');
+require_once('get_host_info.inc');
+require_once('rabbitMQLib.inc');
 
- 
 
+// sessions to make sure the user is logged in when accessing the movie details page
+session_start();
 if (!isset($_SESSION['username'])) {
-    header("Location: index.html"); // Redirect back to login page if not logged in
+    header("Location: index.html");
     exit();
 }
 
 
 
-
-// Client_ID used for grabbing the proper ID from the Trakt API
+// Trakt API Client_ID used for authenticating and pulling data from Trakt API
 $Client_ID = "d8f75848dca47e56ee15ccbc8658a084800c3c101d56e3ae0f2d40278dfb8943";
 
 
-// Checks if ID is present from the movie URL
+
+// checks if the movie ID is provided from the URL
 if (!isset($_GET['id'])) {
-    echo "<p>No movie selected.</p>"; 
-    exit; }
+    echo "<p>No movie selected.</p>";
+    exit;
+}
 
 
-// encode url for safe API use
+// encode the movie ID to safely pass into Trakt API URL
 $id = urlencode($_GET['id']);
 
-// Endpoints from Trakt to grab movie details and credits (cast & crew)
-$Movie_URL = "https://api.trakt.tv/movies/$id?extended=full";
-$Credits_URL = "https://api.trakt.tv/movies/$id/people"; 
+
+// endpoints for grabbing movie details and cast/crew information
+$Movie_URL   = "https://api.trakt.tv/movies/$id?extended=full";
+$Credits_URL = "https://api.trakt.tv/movies/$id/people";
 
 
 
- // fetching the TraktAPI to use in cURL method
+// function handles fetching from Trakt API using cURL
 function fetchTraktAPI($url, $Client_ID) {
-    $ch = curl_init($url); 
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [ 
+
+    // initialize cURL request
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // attach headers required by Trakt API
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "Content-Type: application/json",
         "trakt-api-key: $Client_ID",
         "trakt-api-version: 2",
-        "User-Agent: MyMovieApp/1.0"
+        "User-Agent: MovieHubApp/1.0"
     ]);
-    
-    $response = curl_exec($ch); 
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
-    curl_close($ch); 
 
-// null returned if the API failed to call
-    if ($http_code !== 200) return null; 
-    return json_decode($response, true); // decode & respond to json
+    // execute and capture results
+    $response = curl_exec($ch);
+    $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    // if API error it will give back null if not it will give the 200 code
+    return $status === 200 ? json_decode($response, true) : null;
 }
 
+
+
 // grabs movie and credits data from Trakt API
-$Movie = fetchTraktAPI($Movie_URL, $Client_ID);
+$Movie   = fetchTraktAPI($Movie_URL, $Client_ID);
 $Credits = fetchTraktAPI($Credits_URL, $Client_ID);
 
 
-// error message if movie data could not be fetched
+// error message if movie data does not return properly
 if (!$Movie) {
     echo "<p>Error fetching movie details.</p>";
     exit;
 }
 
 
-// sanitize the keys to safely display
-$Title = htmlspecialchars($Movie['title']);
-$Year = htmlspecialchars($Movie['year']);
-$Overview = htmlspecialchars($Movie['overview']);
+
+// sanitize the keys for safe HTML display
+$Title= htmlspecialchars($Movie['title']);
+$Year= htmlspecialchars($Movie['year']);
+$Overview= htmlspecialchars($Movie['overview']);
 
 
-// array to store cast & crew info
-$Cast_List = $Crew_List = [];
+
+// arrays used for storing cast and crew information
+$Cast_List= [];
+$Crew_List= [];
 
 
-// displays if credits are fetched successfully
+// checks if credit information was successfully returned
 if ($Credits) {
-    
-    if (isset($Credits['cast'])) {
-        foreach ($Credits['cast'] as $Cast) {
-            // Format as "Actor Name as Character Name"
-            $Cast_List[] = htmlspecialchars($Cast['person']['name']) . " as " . htmlspecialchars($Cast['character']);
-        } 
-    
-    }
 
-  
-    if (isset($Credits['crew'])) {
-        foreach ($Credits['crew'] as $Department => $People) {
-            // extract director info
-            if ($Department === 'directing') {
-                foreach ($People as $p) $Crew_List['Directors'][] = htmlspecialchars($p['person']['name']);
-            }
-            
-            // extract writing info
-            if ($Department === 'writing') {
-                foreach ($People as $p) $Crew_List['Writers'][] = htmlspecialchars($p['person']['name']);
-            } 
-        
+    // cast extraction – stored in array as "Actor Name as Character Name"
+    if (!empty($Credits['cast'])) {
+    foreach ($Credits['cast'] as $Cast) {
+    $Cast_List[] = htmlspecialchars($Cast['person']['name']) .
+                " as " . htmlspecialchars($Cast['character']);
         }
-            
     }
-         
 
+ 
+    // crew extraction
+    if (!empty($Credits['crew'])) {
+
+     
+     
+     // extracting directors
+        if (!empty($Credits['crew']['directing'])) {
+            foreach ($Credits['crew']['directing'] as $p) {
+                $Crew_List['Directors'][] = htmlspecialchars($p['person']['name']);
+            }
+        }
+
+
+     
+        // extracting writers
+        if (!empty($Credits['crew']['writing'])) {
+            foreach ($Credits['crew']['writing'] as $p) {
+                $Crew_List['Writers'][] = htmlspecialchars($p['person']['name']);
+            }
+        }
+    }
 }
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title><?php echo $Title; ?> Details of Film</title>
+<title><?php echo "$Title ($Year)"; ?></title>
+
+ 
+<!-- bootstrap implementation -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/lux/bootstrap.min.css">
+
+ 
 <style>
-/* Page Styling */
-body { background-color: #000; color: #fff; font-family: Roboto, sans-serif; padding: 20px; }
-.container { max-width: 800px; margin: 0 auto; background: #1e1e1e; border-radius: 10px; padding: 20px; box-shadow: 0 0 10px #e50914; }
-img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
-h1 { color: #e50914; }
-h2 { color: #e50914; margin-top: 20px; }
-p, li { color: #ccc; }
-a { display: inline-block; margin-top: 20px; color: #e50914; text-decoration: none; }
-a:hover { text-decoration: underline; }
-ul { padding-left: 20px; }
+
+/* overall page design */
+body {
+    background:#f8f9fa;
+    padding:20px;
+    color:#333;
+}
+
+/* box styling for movie details container */
+.container-box {
+    max-width:800px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    position:relative;
+}
+
+/* header styling */
+h1, h2 {
+font-weight:700;
+color:#0b7285;
+}
+
+ 
+/* paragraph and list styling */
+p, li {
+ line-height:1.6;
+ color:#444;
+}
+
+ul { padding-left:20px; }
+
+ 
+/* button styling */
+.btn-black {
+ background:#000;
+  color:white;
+ border:none;
+}
+
+ 
+.btn-black:hover {
+ background:#222;
+}
+
+/* top-left back button positioning */
+.top-left-btn {
+  position:absolute;
+ top:20px;
+  left:20px;
+}
+
+/* top-right rate/review button positioning */
+.top-right-btn {
+  position:absolute;
+ top:20px;
+  right:20px;
+}
+
+/* link styling */
+a {
+  color:#0b7285;
+ font-weight:bold;
+  text-decoration:none;
+}
+a:hover { text-decoration:underline; }
+
+/* mobile responsive button alignment */
+@media (max-width: 600px) {
+    .top-left-btn,
+    .top-right-btn {
+        position:static;
+        display:block;
+        margin-bottom:10px;
+        text-align:right;
+    }
+}
+
 </style>
 </head>
+
 <body>
-<div class="container">
-    <!-- movie poster(need to find a way to have pictures or not) -->
-    <img src="<?php echo $Poster; ?>" alt="Poster" onerror="this.src='https://via.placeholder.com/500x750?text=No+Image'">
 
-    <!-- Movie Title & yr -->
-    <h1><?php echo "$Title ($Year)"; ?></h1>
+<div class="container-box">
 
-    <!-- Movie Description -->
+    <!-- back button to search page -->
+    <div class="top-left-btn">
+        <a href="search.php">
+      <button class="btn btn-black">← Back to Search</button>
+        </a>
+    </div>
+
+    <!-- link to rate/review page -->
+    <div class="top-right-btn">
+        <a href="reviews.php?movie_id=<?php echo urlencode($id); ?>&movie_title=<?php echo urlencode($Title); ?>">
+         <button class="btn btn-black">Rate / Review</button>
+        </a>
+    </div>
+
+    <!-- movie title -->
+    <h1 class="mt-5"><?php echo "$Title ($Year)"; ?></h1>
+
+    <!-- overview description -->
     <p><?php echo nl2br($Overview); ?></p>
 
-    <!-- Directors Section -->
+    <!-- director list -->
     <?php if (!empty($Crew_List['Directors'])): ?>
-        <h2>Directors:</h2>
+        <h2>Directors</h2>
         <ul>
-            <?php foreach ($Crew_List['Directors'] as $Director) echo "<li>$Director</li>"; ?>
+             <?php foreach ($Crew_List['Directors'] as $d) echo "<li>$d</li>"; ?>
         </ul>
     <?php endif; ?>
 
-    <!-- Writers Section -->
+    <!-- writer list -->
     <?php if (!empty($Crew_List['Writers'])): ?>
-        <h2>Writers:</h2>
+        <h2>Writers</h2>
         <ul>
-            <?php foreach ($Crew_List['Writers'] as $Writer) echo "<li>$Writer</li>"; ?>
+            <?php foreach ($Crew_List['Writers'] as $w) echo "<li>$w</li>"; ?>
         </ul>
     <?php endif; ?>
 
-    <!-- Cast Section -->
+    <!-- cast section -->
     <?php if (!empty($Cast_List)): ?>
-        <h2>Main Cast:</h2>
+        <h2>Main Cast</h2>
         <ul>
-            <?php foreach ($Cast_List as $Cast_Member) echo "<li>$Cast_Member</li>"; ?>
+            <?php foreach ($Cast_List as $c) echo "<li>$c</li>"; ?>
         </ul>
     <?php endif; ?>
 
-    <!-- Back to Search Link -->
-    <a href="search.php">← Back to Search</a>
 </div>
+
 </body>
 </html>
