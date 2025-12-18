@@ -5,6 +5,8 @@ require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');       
 
 
+
+
 // This function is supposed to handle incoming requests made by MQ related to movies
 function requestProcessor($request)
 {
