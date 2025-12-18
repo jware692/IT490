@@ -12,16 +12,16 @@ if (!isset($_SESSION['username'])) {
     	exit();
 }
 
-// readming movie ID from Trakt API
-$username = $_SESSION['username'];
-$movie_id = $_GET['movie_id'] ?? '';
-$movie_title = null;
+	// readming movie ID from api
+	$username = $_SESSION['username'];
+	$movie_id = $_GET['movie_id'] ?? '';
+	$movie_title = null;
 
 
-// supports possible title names
-if (!empty($_GET['movie_title'])) {
-$movie_title = trim($_GET['movie_title']);
-}
+	// supports possible title names
+	if (!empty($_GET['movie_title'])) {
+	$movie_title = trim($_GET['movie_title']);
+	}
 
 elseif (!empty($_GET['title'])) {
 $movie_title = trim($_GET['title']);
@@ -31,11 +31,11 @@ elseif (!empty($_GET['movie_name'])) {
 $movie_title = trim($_GET['movie_name']);
 }
 
-// If movie is not in Trakt Database or included in API
-if (!$movie_title) {
-$movie_title = "Unknown Movie";
-}
-
+	// If movie is not in Trakt Database or included in api
+	if (!$movie_title) {
+	$movie_title = "Unknown Movie";
+	}
+	
 
 // fucntion to connect to MQ
 function mq($req) {
@@ -47,6 +47,7 @@ function mq($req) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_review') {
 mq([
 	"type"=>"createReview",
+   
         "movie_id"=> $movie_id,
         "movie_title" => $movie_title,
         "username"=> $username,
@@ -55,7 +56,7 @@ mq([
     ]
 );
 
-  // redirection button
+  
 
 
 header("Location: reviews.php?movie_id=" . urlencode($movie_id) .
@@ -77,18 +78,17 @@ mq(
 );
 
 
-header("Location: reviews.php?movie_id=" . urlencode($movie_id) .
-	"&movie_title=" . urlencode($movie_title));
-exit();
-}
+	header("Location: reviews.php?movie_id=" . urlencode($movie_id) .
+	 "&movie_title=" . urlencode($movie_title));
+	exit();
+	}
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete_review') {
-    mq(
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete_review') {
+	    mq(
 
       // handles deleting a review
 [
-  "type"=> "deleteReview",
-"id"=> (int)$_POST['review_id'],
+  "type"=> "deleteReview","id"=> (int)$_POST['review_id'],
   "username"=> $username
 ] );
 
@@ -101,9 +101,9 @@ exit();
 
 $resp = mq(
 
-[
+	[
     "type"=> "getReviewsByMovie", "movie_id"=> $movie_id
-]
+	]
 
 );
 
@@ -114,48 +114,49 @@ $reviews = ($resp["returnCode"] ?? 0) == 1 ? ($resp["data"] ?? []) : [];
 <html>
 <head>
 <title>Reviews — <?php echo htmlspecialchars($movie_title); ?></title>
-<!-- bootstrap implementation -->
+	
+<!-- bootswatch implementation -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/lux/bootstrap.min.css">
 <style>
 
-body {
-   background:#f8f9fa;
-   padding:20px;
-   color:#333;
-    	
-}
+	body {
+	   background:#f8f9fa;
+	   padding:20px;
+	   color:#333;
+	    	
+	}
+	
+	
+	
+	 .container-box {
+	    max-width:700px;
+	    margin:auto;
+	    background:white;
+	    padding:25px;
+	   border-radius:12px;
+	   border:1px solid #ddd;
+	    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+	    	
+	}
 
-
-
- .container-box {
-    max-width:700px;
-    margin:auto;
-    background:white;
-    padding:25px;
-   border-radius:12px;
-   border:1px solid #ddd;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
-    	
-}
-
-h1 {
-   text-align:center;
-   font-size:26px;
-   font-weight:700;
-   color:#0b7285;
-   margin-bottom:25px;
-    	}
-
- .box {
-     background:white;
-     border:1px solid #e0e0e0;
-     padding:15px;
-      border-radius:10px;
-     margin-bottom:20px;
-   }
+	h1 {
+	   text-align:center;
+	   font-size:26px;
+	   font-weight:700;
+	   color:#0b7285;
+	   margin-bottom:25px;
+	    	}
+	
+.box {
+	     background:white;
+	     border:1px solid #e0e0e0;
+	     padding:15px;
+	      border-radius:10px;
+	     margin-bottom:20px;
+	   }
 
   
-   textarea, select {
+textarea, select {
       width:100%;
       padding:10px;
      border-radius:6px;
@@ -164,7 +165,7 @@ h1 {
     	}
 
   
-   .btn-black {
+.btn-black {
       background:#000;
      color:white;
       border:none;
@@ -182,7 +183,7 @@ h1 {
     }
 
   
-   #editModal {
+#editModal {
      display:none;
     position:fixed;
      left:0; top:0; right:0; bottom:0;
@@ -192,7 +193,7 @@ h1 {
     }
 
   
-   #editModal .modal-inner {
+#editModal .modal-inner {
      background:white;
     max-width:450px;
      margin:auto;
@@ -236,26 +237,26 @@ Rating:
 <?php if (empty($reviews)): ?>
 	<p>No reviews yet.</p>
 <?php endif; ?>
-<?php foreach ($reviews as $r): ?>
-    <div class="box">
-        <strong><?php echo htmlspecialchars($r['username']); ?></strong>
-        — <?php echo (int)$r['rating']; ?>/5  
-        <div class="meta"><?php echo htmlspecialchars($r['created_at']); ?></div>
-        <p class="mt-2"><?php echo nl2br(htmlspecialchars($r['review_text'])); ?></p>
-        <?php if ($r['username'] === $username): ?>
-        	<button class="btn btn-black btn-sm"
-          onclick="openEditForm(
-          '<?php echo $r['id']; ?>',
-            '<?php echo $r['rating']; ?>',
-            `<?php echo htmlspecialchars($r['review_text']); ?>`
-          )">
-            Edit
-            </button>
-            <form method="post" style="display:inline;">
-                <input type="hidden" name="action" value="delete_review">
-                <input type="hidden" name="review_id" value="<?php echo $r['id']; ?>">
-                <button class="btn btn-black btn-sm" onclick="return confirm('Delete your review?')">Delete</button>
-            	</form>
+	<?php foreach ($reviews as $r): ?>
+	    <div class="box">
+	        <strong><?php echo htmlspecialchars($r['username']); ?></strong>
+	        — <?php echo (int)$r['rating']; ?>/5  
+	        <div class="meta"><?php echo htmlspecialchars($r['created_at']); ?></div>
+	        <p class="mt-2"><?php echo nl2br(htmlspecialchars($r['review_text'])); ?></p>
+	        <?php if ($r['username'] === $username): ?>
+	        	<button class="btn btn-black btn-sm"
+	          onclick="openEditForm(
+	          '<?php echo $r['id']; ?>',
+	            '<?php echo $r['rating']; ?>',
+	            `<?php echo htmlspecialchars($r['review_text']); ?>`
+	          )">
+	            Edit
+	            </button>
+	            <form method="post" style="display:inline;">
+	                <input type="hidden" name="action" value="delete_review">
+	                <input type="hidden" name="review_id" value="<?php echo $r['id']; ?>">
+	                <button class="btn btn-black btn-sm" onclick="return confirm('Delete your review?')">Delete</button>
+	            	</form>
 <?php endif; ?>
 </div>
 <?php endforeach; ?>
@@ -290,18 +291,17 @@ Rating:
 	</div>
 
 
-<script>
-function openEditForm(id, rating, text) {
-document.getElementById('edit_review_id').value = id;
-document.getElementById('edit_rating').value = rating;
-document.getElementById('edit_review_text').value = text;
-document.getElementById('editModal').style.display = 'block';
-}
-
-
-function closeEditForm() {
-document.getElementById('editModal').style.display = 'none';
-}
-</script>
-</body>
-</html>
+	<script>
+	function openEditForm(id, rating, text) {
+		document.getElementById('edit_review_id').value = id;
+		document.getElementById('edit_rating').value = rating;
+		document.getElementById('edit_review_text').value = text;
+		document.getElementById('editModal').style.display = 'block';}
+	
+	
+	function closeEditForm() {
+	document.getElementById('editModal').style.display = 'none';
+	}
+	</script>
+	</body>
+	</html>
