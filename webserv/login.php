@@ -12,6 +12,7 @@ session_start(); // Session started to handle user & response data
 $client = new rabbitMQClient("testRabbitMQ.ini", "loginServer");
 
 
+
 // collect username & password from POST request
 $username = $_POST['username'] ?? '';
 $password = $_POST['password'] ?? '';
