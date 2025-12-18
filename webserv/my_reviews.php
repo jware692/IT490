@@ -9,17 +9,17 @@ require_once('rabbitMQLib.inc');
 session_start();
 if (!isset($_SESSION['username'])) {
 	header("Location: index.php");
-    	exit();
+ exit();
 }
 
 $username = $_SESSION['username'];
 
-
-// MQ helper function to send requests to reviewServer
-function mq($req) {
-	$client = new rabbitMQClient("testRabbitMQ.ini", "reviewServer");
-    	return $client->send_request($req);
-}
+	
+	// MQ helper function to send requests to reviewServer
+	function mq($req) {
+		$client = new rabbitMQClient("testRabbitMQ.ini", "reviewServer");
+	    return $client->send_request($req);
+	}
 
 
 // converts movie_id to title
@@ -34,7 +34,7 @@ function formatMovieTitleFromID($movie_id) {
 
 // grabs personalized reviews
 $resp = mq([
-"type" => "getReviewsByUser", "username" => $username]);
+"type" => "getReviewsByUser","username" => $username]);
 
 
 // funciton to store successful reviews
@@ -61,7 +61,7 @@ $reviews_on_page = array_slice($reviews, $start, $per_page);
 <head>
 <title>My Reviews</title>
 
-<!-- Bootstrap implementation -->
+<!-- Bootswatch implementation for responsive web design-->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/lux/bootstrap.min.css">
 <style>
   
@@ -205,7 +205,7 @@ $cleanTitle = formatMovieTitleFromID($r['movie_id']);
 <?php endforeach; ?>
 
 
-<!-- pagination controls -->
+<!-- pagination -->
 <?php if ($total_pages > 1): ?>
 <div class="pagination">
 
