@@ -15,17 +15,16 @@ if (!isset($_SESSION['username'])) {
 
 
 
-// request goes from MQ to DMZMovieServer to request Trending movies for browse feature
+// request goes from MQ to backend to request Trending movies for browse feature
 function getTrendingMoviesFromDMZ() {
 
-    // creates a new MQ client & connects to the DMZ VM
+    // creates a new MQ client & connects to the dmz
     $client = new rabbitMQClient("testRabbitMQ.ini", "DMZMovieServer");
 
     
     // request the specific type of data being pulled and a limit installed of the max amount of movies given back
     $request = [
-        "type"  => "trendingMovies",
-        "limit" => 1000
+        "type"=>"trendingMovies","limit"=>1000
     ];
 
     
@@ -39,19 +38,17 @@ function getTrendingMoviesFromDMZ() {
     }
 
     
-    // if response is not valid, return null
+
     return null;
 }
 
 
 
-// grabs trending movies from DMZ VM 
-$trendingMovies = getTrendingMoviesFromDMZ();
-
-// shuffles movies from TrendingMovies API from Trakt
-if ($trendingMovies) {
-shuffle($trendingMovies);
-}
+	// grabs trending movies from dmz 
+	$trendingMovies = getTrendingMoviesFromDMZ();
+		if ($trendingMovies) {     // shuffles movies so user does not see the same movie over & over
+	shuffle($trendingMovies);
+	}
 
 ?>
 
@@ -62,36 +59,37 @@ shuffle($trendingMovies);
 <meta charset="UTF-8">
 <title>Browse Movies</title>
 
-<!-- Bootswatch LUX styling -->
+<!-- Bootswatch implementation for responsive web design -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/lux/bootstrap.min.css">
 
 <style>
 
-/* frontend styling */
-body {
-    background:#f8f9fa;
-    color:#333;
-    padding:20px;
-}
 
-/* header styling */
-h1, h2 {
-    text-align:center;
-    color:#0b7285;
-    font-weight:700;
-}
+	body {
+    	background:#f8f9fa;
+    	color:#333;
+    	padding:20px;
+		}
+	
 
-/* button styling */
-.btn-black {
-    background:#000;
-    color:#fff;
-    border:none;
-}
+
+	h1, h2 {
+    	text-align:center;
+    	color:#0b7285;
+    	font-weight:700;
+	}
+
+
+	.btn-black {
+    	background:#000;
+    	color:#fff;
+    	border:none;
+	}
 .btn-black:hover {
     background:#222;
 }
 
-/* container that holds all movie cards */
+
 .movies-container {
     display:flex;
     flex-wrap:wrap;
@@ -100,21 +98,21 @@ h1, h2 {
     margin-top:20px;
 }
 
-/* movie card styling */
-.movie-card {
-    background:white;
-    border:1px solid #e0e0e0;
-    border-radius:12px;
-    width:220px;
-    padding:15px;
-    text-align:center;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
-    transition:0.2s;
-}
+
+	.movie-card {
+	    background:white;
+	    border:1px solid #e0e0e0;
+	    border-radius:12px;
+	    width:220px;
+	    padding:15px;
+	    text-align:center;
+	    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+	    transition:0.2s;
+	}
 
 
 
-/* movie title styling */
+
 .movie-card h3 {
     font-size:18px;
     margin-bottom:8px;
@@ -122,14 +120,14 @@ h1, h2 {
     font-weight:600;
 }
 
-/* movie year styling */
+
 .movie-card p {
     margin:0 0 12px 0;
     color:#555;
     font-size:14px;
 }
 
-/* details button styling */
+
 .details-link {
     background:#000;
     color:white;
@@ -150,13 +148,14 @@ h1, h2 {
 
 <h1>Browse Movies</h1>
 
-<!-- redirects user to search page where the nav bar is located as well -->
+	<!-- redirects user to search page where the nav bar is located as well -->
 <div class="text-center mt-3">
-    <a href="search.php" class="btn btn-black">Search for Movies</a>
+<a href="search.php" class="btn btn-black">Search for Movies</a>
 </div>
 
 
 <h2 class="mt-4">Trending Movies</h2>
+	
 
 <!-- container to display all movie cards -->
 <div class="movies-container" id="moviesContainer">
@@ -178,12 +177,11 @@ if ($trendingMovies) {
 
         
         // sanitize and extract movie data
-        $id    = htmlspecialchars($movie['ids']['slug']);
-        $title = htmlspecialchars($movie['title']);
-        $year  = htmlspecialchars($movie['year']);
+        $id= htmlspecialchars($movie['ids']['slug']);
+        $title= htmlspecialchars($movie['title']);
+        $year= htmlspecialchars($movie['year']);
 
         
-        // output movie card HTML
         echo "
         <div class='movie-card'>
             <h3>$title</h3>
@@ -218,13 +216,13 @@ else {
 // pass movie data from PHP to JS for dynamic rendering
 const allMovies = <?php echo json_encode($trendingMovies); ?>;
 
-// tracks how many movies have been displayed
+// shows how many movies have been displayed
 let displayedCount = 20;
 
 
 	
-const container   = document.getElementById('moviesContainer');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
+const container= document.getElementById('moviesContainer');
+const loadMoreBtn= document.getElementById('loadMoreBtn');
 
 
 // dynamic movie rendering into the page
@@ -236,10 +234,10 @@ function renderMovies(movies) {
         if (!item.movie) return;
 
 		
-        const movie = item.movie;
-        const id    = movie.ids.slug;
-        const title = movie.title;
-        const year  = movie.year;
+        const movie= item.movie;
+        const id= movie.ids.slug;
+        const title= movie.title;
+        const year= movie.year;
 
         
         // create movie card dynamically
