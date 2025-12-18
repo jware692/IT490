@@ -1,6 +1,7 @@
 <?php
 
 
+
 session_start(); // starting session
 
 // checks if user is actually logged in from their username
