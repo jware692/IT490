@@ -32,8 +32,8 @@ $id = urlencode($_GET['id']);
 
 
 // endpoints for grabbing movie details and cast/crew information
-$Movie_URL   = "https://api.trakt.tv/movies/$id?extended=full";
-$Credits_URL = "https://api.trakt.tv/movies/$id/people";
+$Movie_URL= "https://api.trakt.tv/movies/$id?extended=full";
+$Credits_URL= "https://api.trakt.tv/movies/$id/people";
 
 
 
@@ -63,9 +63,9 @@ function fetchTraktAPI($url, $Client_ID) {
 
 
 
-// grabs movie and credits data from Trakt API
-$Movie   = fetchTraktAPI($Movie_URL, $Client_ID);
-$Credits = fetchTraktAPI($Credits_URL, $Client_ID);
+// grabs movie and credits data from the api
+    $Movie= fetchTraktAPI($Movie_URL, $Client_ID);
+    $Credits= fetchTraktAPI($Credits_URL, $Client_ID);
 
 
 // error message if movie data does not return properly
@@ -78,14 +78,14 @@ if (!$Movie) {
 
 // sanitize the keys for safe HTML display
 $Title= htmlspecialchars($Movie['title']);
-$Year= htmlspecialchars($Movie['year']);
-$Overview= htmlspecialchars($Movie['overview']);
+    $Year= htmlspecialchars($Movie['year']);
+    $Overview= htmlspecialchars($Movie['overview']);
 
 
 
 // arrays used for storing cast and crew information
-$Cast_List= [];
-$Crew_List= [];
+        $Cast_List= [];
+        $Crew_List= [];
 
 
 // checks if credit information was successfully returned
@@ -132,20 +132,20 @@ if ($Credits) {
 <title><?php echo "$Title ($Year)"; ?></title>
 
  
-<!-- bootstrap implementation -->
+<!-- bootswatch implementation for esponsive web design -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/lux/bootstrap.min.css">
 
  
 <style>
 
-/* overall page design */
+
 body {
     background:#f8f9fa;
     padding:20px;
     color:#333;
 }
 
-/* box styling for movie details container */
+
 .container-box {
     max-width:800px;
     margin:auto;
@@ -157,23 +157,22 @@ body {
     position:relative;
 }
 
-/* header styling */
-h1, h2 {
-font-weight:700;
-color:#0b7285;
-}
 
- 
-/* paragraph and list styling */
+        h1, h2 {
+        font-weight:700;
+        color:#0b7285;
+        }
+
+
 p, li {
  line-height:1.6;
  color:#444;
 }
 
-ul { padding-left:20px; }
+    ul { padding-left:20px; }
 
  
-/* button styling */
+
 .btn-black {
  background:#000;
   color:white;
@@ -185,29 +184,27 @@ ul { padding-left:20px; }
  background:#222;
 }
 
-/* top-left back button positioning */
+
 .top-left-btn {
   position:absolute;
  top:20px;
   left:20px;
 }
 
-/* top-right rate/review button positioning */
 .top-right-btn {
   position:absolute;
  top:20px;
   right:20px;
 }
 
-/* link styling */
-a {
-  color:#0b7285;
- font-weight:bold;
-  text-decoration:none;
-}
-a:hover { text-decoration:underline; }
+    a {
+      color:#0b7285;
+     font-weight:bold;
+      text-decoration:none;
+    }
+    a:hover { text-decoration:underline; }
 
-/* mobile responsive button alignment */
+
 @media (max-width: 600px) {
     .top-left-btn,
     .top-right-btn {
@@ -225,7 +222,7 @@ a:hover { text-decoration:underline; }
 
 <div class="container-box">
 
-    <!-- back button to search page -->
+
     <div class="top-left-btn">
         <a href="search.php">
       <button class="btn btn-black">← Back to Search</button>
@@ -239,10 +236,10 @@ a:hover { text-decoration:underline; }
         </a>
     </div>
 
-    <!-- movie title -->
+
     <h1 class="mt-5"><?php echo "$Title ($Year)"; ?></h1>
 
-    <!-- overview description -->
+   
     <p><?php echo nl2br($Overview); ?></p>
 
     <!-- director list -->
@@ -261,7 +258,7 @@ a:hover { text-decoration:underline; }
         </ul>
     <?php endif; ?>
 
-    <!-- cast section -->
+  
     <?php if (!empty($Cast_List)): ?>
         <h2>Main Cast</h2>
         <ul>
