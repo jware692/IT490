@@ -4,13 +4,13 @@
 require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
-
-// checks if user is logged in, otherwise redirects to login page
-session_start();
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
+	
+	// checks if user is logged in, otherwise redirects to login page
+	session_start();
+	if (!isset($_SESSION['username'])) {
+	    header("Location: login.php");
+	    exit();
+	}
 
 $username = $_SESSION['username'];
 
@@ -28,14 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['movie_id'])) {
     $client = new rabbitMQClient("testRabbitMQ.ini", "watchlistServer");
 
 	$res = $client->send_request([
-  'type' => 'removeWatchlist', 'username' => $username,'movie_id' => $movie_id]
+  'type' =>'removeWatchlist','username'=> $username,'movie_id' => $movie_id]
 );
 
 
     // respond to frontend with a success or failure
-echo json_encode([
-	'success' => $res['returnCode'] == 1,'message' => $res['message'] ?? 'Request processed']
-);
+		echo json_encode([
+		'success' => $res['returnCode'] == 1,'message' => $res['message'] ?? 'Request processed']
+	);
 
 exit;
 }
@@ -56,7 +56,7 @@ $movies = $response['data'] ?? [];
 <meta charset="UTF-8">
 <title><?= htmlspecialchars($username) ?>'s Watchlist</title>
 
-<!-- bootstrap implementation -->
+<!-- bootswatch implementation -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/lux/bootstrap.min.css">
 
 <style>
@@ -124,12 +124,12 @@ font-weight:700;
 
         <!-- release date -->
         <p class="text-muted mb-3">
-            	Release Date: <?= htmlspecialchars($movie['release_date'] ?? 'TBA') ?>
+            Release Date: <?= htmlspecialchars($movie['release_date'] ?? 'TBA') ?>
                 </p>
 
         <!-- remove button triggers AJAX request -->
         <button class="btn btn-black w-100 remove-btn">
-                Remove from Watchlist
+            Remove from Watchlist
         </button>
 
             </div>
@@ -147,8 +147,7 @@ font-weight:700;
 
 
 // handler for removing movie via AJAX
-document.addEventListener('click', e => {
-
+document.addEventListener('click',e=> {
 	if (e.target.classList.contains('remove-btn')) {
 
 const btn = e.target;
@@ -159,17 +158,17 @@ const movie_id = card.dataset.id;
 	// send POST request to remove from watchlist
 	fetch("watchlist.php", {
     method: "POST",
-headers: { "Content-Type": "application/x-www-form-urlencoded" },
-body: new URLSearchParams({ movie_id })
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		body: new URLSearchParams({ movie_id })
         }
 )
 
 .then(res => res.json())
 .then(data => {
 
-        	// remove movie from UI if backend removal succeeded
-        	if (data.success) {
-                card.remove();
+        // remove movie from UI if backend removal succeeded
+        if (data.success) {
+          card.remove();
             } 
 
             // display error if MQ fails
@@ -186,7 +185,7 @@ else {
 </script>
 
 
-<!-- bootstrap javascript -->
+<!-- bootswatch implementation -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
