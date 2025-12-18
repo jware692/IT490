@@ -5,6 +5,8 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+
+
 // session validation
 session_start();
 if (!isset($_SESSION['username'])) {
@@ -47,14 +49,14 @@ function mq($req) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_review') {
 mq([
 	"type"=>"createReview",
-   
+
         "movie_id"=> $movie_id,
-        "movie_title" => $movie_title,
+        "movie_title"=> $movie_title,
         "username"=> $username,
         "rating"=> (int)$_POST['rating'],
         "review_text"=> $_POST['review_text']
-    ]
-);
+    	]
+	);
 
   
 
@@ -68,8 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit_
 mq(
 
   // handles editing a review
-[
-    "type"=> "updateReview",
+["type"=> "updateReview",
     "id"=> (int)$_POST['review_id'],
     "username"=> $username,
     "rating"=> (int)$_POST['rating'],
@@ -93,21 +94,20 @@ mq(
 ] );
 
 
-header("Location: reviews.php?movie_id=" . urlencode($movie_id) .
-	"&movie_title=" . urlencode($movie_title));
-exit();
-
-}
+	header("Location: reviews.php?movie_id=" . urlencode($movie_id) .
+		"&movie_title=" . urlencode($movie_title));
+	exit();
+	
+	}
 
 $resp = mq(
 
 	[
-    "type"=> "getReviewsByMovie", "movie_id"=> $movie_id
-	]
+    "type"=> "getReviewsByMovie","movie_id"=> $movie_id]
 
 );
 
-$reviews = ($resp["returnCode"] ?? 0) == 1 ? ($resp["data"] ?? []) : [];
+	$reviews = ($resp["returnCode"] ?? 0) == 1 ? ($resp["data"] ?? []) : [];
 
 ?>
 <!DOCTYPE html>
