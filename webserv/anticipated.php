@@ -228,7 +228,7 @@ searchBar.addEventListener('input', () => {
 // Adding to watchlist feature with AJAx
 document.addEventListener('click',e =>{
 	if (e.target.classList.contains("add-watchlist-btn")) {
-        	const btn=e.target;
+        const btn=e.target;
         	const movie_id=btn.dataset.movieid;
         	const title=btn.dataset.title;
         	const release=btn.dataset.release;
