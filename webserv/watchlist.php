@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['movie_id'])) {
 
 	$res = $client->send_request([
   'type' =>'removeWatchlist','username'=> $username,'movie_id' => $movie_id]
-);
+		);
 
 
     // respond to frontend with a success or failure
@@ -37,14 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['movie_id'])) {
 		'success' => $res['returnCode'] == 1,'message' => $res['message'] ?? 'Request processed']
 	);
 
-exit;
-}
+		exit;
+			}
 
 
 
-// fetches the watchlist stored in backend through MQ
-$client = new rabbitMQClient("testRabbitMQ.ini", "watchlistServer");
-$response = $client->send_request(['type' => 'getWatchlist', 'username' => $username]);
+	// fetches the watchlist stored in backend through MQ
+	$client = new rabbitMQClient("testRabbitMQ.ini", "watchlistServer");
+	$response = $client->send_request(['type' => 'getWatchlist', 'username' => $username]);
 
 
 // stores the list of movies returned
@@ -62,23 +62,23 @@ $movies = $response['data'] ?? [];
 <style>
   body { background:#f8f9fa; }
 
-  .btn-black {
-  background-color:#000;
-  color:white;
-    border:none;
-    }
-
-.btn-black:hover {
-  background-color:#222;
-  color:white;
-    	}
-
-.movie-card {
-  background:white;
-  border:1px solid #e0e0e0;
-  border-radius:12px;
-transition:.2s;
-    	}
+	  .btn-black {
+	  background-color:#000;
+	  color:white;
+	    border:none;
+	    }
+	
+	.btn-black:hover {
+	  background-color:#222;
+	  color:white;
+	    	}
+	
+	.movie-card {
+	  background:white;
+	  border:1px solid #e0e0e0;
+	  border-radius:12px;
+	transition:.2s;
+	    	}
 
 .movie-card:hover { transform:scale(1.02); }
 
@@ -146,13 +146,13 @@ font-weight:700;
 <script>
 
 
-// handler for removing movie via AJAX
-document.addEventListener('click',e=> {
-	if (e.target.classList.contains('remove-btn')) {
-
-const btn = e.target;
-const card = btn.closest('.movie-card-wrapper');
-const movie_id = card.dataset.id;
+	// handler for removing movie via AJAX
+	document.addEventListener('click',e=> {
+		if (e.target.classList.contains('remove-btn')) {
+	
+	const btn = e.target;
+	const card = btn.closest('.movie-card-wrapper');
+	const movie_id = card.dataset.id;
 
 
 	// send POST request to remove from watchlist
